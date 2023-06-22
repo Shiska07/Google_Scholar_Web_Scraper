@@ -87,9 +87,59 @@ def get_publication_years(soup):
 
     return years_list
 
+# returns a list containing name of the journal where each paper was published
+def get_journal_names(soup):
+
+    res_list = list(soup.select('.gs_a'))
+    journal_names_list = [item.get_text().split()[-1] for item in res_list]
+    return journal_names_list
+
+# returns a list containing the number of citations on each search result article
+def get_number_of_citations(soup):
+
+    res_list = list(soup.select('.gs_fl'))
+    valid_res_list = valid_res_list = [item for item in res_list if len(item["class"]) == 1]
+
+    # the 'gs_fl' class containing citation for each search item = (i*2)+1 ( i = 0, the index is 1)
+    total_citations_list = [int(item.find_all('a')[2].get_text().split()[-1]) for item in valid_res_list]
+    return total_citations_list
+
 # returns a 2D list containing different attributes of the search results for a single page
-def get_search_results(request_url):
+def get_search_results_as_df(request_url):
 
     # get soup
     soup = get_response_soup(request_url)
 
+    # get search result attributes and convert each to series
+    titles_ser = pd.Series(get_titles(soup), name = "title")
+    urls_ser = pd.Series(get_article_urls(soup), name = "url")
+    authors_ser = pd.Series(get_article_urls(soup), name = "first_author")
+    year_ser = pd.Series(get_publication_years(soup), name = "year", dtype = int)
+    journal_ser = pd.Series(get_journal_names(soup), name = "journal")
+    citations_ser = pd.Series(get_number_of_citations(soup), name = "citations", dtype = int)
+
+    # create dataframe
+    df = pd.concat([titles_ser, year_ser, authors_ser, citations_ser, journal_ser, urls_ser], axis = 1)
+    return df
+
+def get_sorted_dataframe(request_url, sorting_prefs):
+
+    # create a pandas dataframe to store values
+    final_df = pd.Dataframe(columns = ['title', 'year', 'first_author', 'citations', 'journal', 'url'])
+
+    # get urls for upto 'n' pages
+    search_urls_list = get_urls_to_consequtive_n_pages(request_url, get_response_soup(request_url), 7)
+
+    # for each result page
+    for search_url in search_urls_list:
+
+        # get df for search result
+        single_page_res_df = get_search_results_as_df(search_url)
+
+        # append to final df
+        final_df.append(single_page_res_df, ignore_index = True)
+        final_df.reset_index(drop = True, inplace = True)
+
+    # sort the df according to user preferences
+
+    return final_df
