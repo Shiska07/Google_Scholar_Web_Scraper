@@ -3,10 +3,14 @@ import csv
 import sys
 import helpers
 
+
+
+
+
 def get_user_input():
 
     # start_url = str(input('Enter your Google Scholar Search result url: '))
-    start_url = "https://scholar.google.com/scholar?start=0&q=(%22Machine+Learning%22%7C%22Deep+Learning%22)(%22Radiation+oncology%22%7C%22cancer+detection%22)&hl=en&as_sdt=0,44"
+    input_url = "https://scholar.google.com/scholar?start=0&q=(%22Machine+Learning%22%7C%22Deep+Learning%22)(%22Radiation+oncology%22%7C%22cancer+detection%22)&hl=en&as_sdt=0,44"
 
     print("Please enter attribute you would like to sort by in the decreasing order of priority.Your options are:\n")
     print("number of citations(desc): 1\nyear published(desc): 2\nfirst author name: 3\njournal name: 4\nno criteria: 0\n")
@@ -37,10 +41,12 @@ def get_user_input():
             break
 
     # return starting url and sorting preferences
-    return start_url, sorting_pref
+    return input_url, sorting_pref
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    get_user_input()
+
+    # get url and sorting prefs from user
+    url, sorting_prefs = get_user_input()
 
 
