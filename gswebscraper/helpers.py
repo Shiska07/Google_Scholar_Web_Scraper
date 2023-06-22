@@ -46,10 +46,50 @@ def write_search_metadata(soup, request_url):
 
 
 # gets intial response for url provided by the user and returns soup object
-def get_response(request_url):
+def get_response_soup(request_url):
 
     req_response = requests.get(request_url)
     soup = bs4.BeautifulSoup(req_response.content, "lxml")
-
     return soup
+
+# returns a list of journal article titles for all search results on the page
+def get_titles(soup):
+
+    res_list = list(soup.select('[data-lid]'))
+    titles = [item.select('h3')[0].get_text() for item in res_list]
+    return titles
+
+# returns a list of url to article for all search results on the page
+def get_article_urls(soup):
+
+    res_list = list(soup.select('[data-lid]'))
+    article_urls = [item.find_all('a', href = True)[0]['href'] for item in res_list]
+    return article_urls
+
+# returns a list of first authors for all search results on the page
+def get_first_auther_names(soup):
+
+    res_list = soup.select('.gs_a')
+    first_authors_list = [item.find_all('a')[0].get_text() for item in res_list]
+    return first_authors_list
+
+# returns a list of publication years for each search result article
+def get_publication_years(soup):
+
+    res_list = list(soup.select('.gs_a'))
+    years_list = []
+
+    years_list = [item.get_text().split() for item in res_list]
+    for value in res_list:
+        terms = value.get_text().split()
+        value = [item for item in terms if item.isnumeric()]
+        years_list.append(value[0])
+
+    return years_list
+
+# returns a 2D list containing different attributes of the search results for a single page
+def get_search_results(request_url):
+
+    # get soup
+    soup = get_response_soup(request_url)
 
