@@ -21,19 +21,20 @@ sorting_fields = {1: 'total_citations',
                   4: 'journal_name',
                   0: 'no_criteria'}
 
+
 domain_url = "https://scholar.google.com"
 
 # given a starting url and a value of n, returns a list of urls for next pages of the result
-def get_urls_to_consequtive_n_pages(start_url, soup, n = 9):
+def get_urls_to_consequtive_n_pages(start_url, soup, n):
 
     # create list to store urls
     url_list = [start_url]
 
     # url's pointing to the next pages are defined by id 'gs_ml'
-    result_set = soup.select('#gs_ml')[0].find_all('a')
+    result_set = soup.select('#gs_nml')[0].find_all('a')
 
     # add all url's in the result set to the list
-    for i in range(0, 9):
+    for i in range(0, n - 1):
         url_raw = result_set[i]['href']
         url_final = domain_url + url_raw
         url_list.append(url_final)
@@ -70,7 +71,7 @@ def get_article_urls(soup):
 def get_first_auther_names(soup):
 
     res_list = soup.select('.gs_a')
-    first_authors_list = [item.find_all('a')[0].get_text() for item in res_list]
+    first_authors_list = [item.get_text().split(', ')[0] for item in res_list]
     return first_authors_list
 
 # returns a list of publication years for each search result article
@@ -79,11 +80,10 @@ def get_publication_years(soup):
     res_list = list(soup.select('.gs_a'))
     years_list = []
 
-    years_list = [item.get_text().split() for item in res_list]
     for value in res_list:
         terms = value.get_text().split()
         value = [item for item in terms if item.isnumeric()]
-        years_list.append(value[0])
+        years_list.append(int(value[0]))
 
     return years_list
 
@@ -91,7 +91,7 @@ def get_publication_years(soup):
 def get_journal_names(soup):
 
     res_list = list(soup.select('.gs_a'))
-    journal_names_list = [item.get_text().split()[-1] for item in res_list]
+    journal_names_list = [item.get_text().split()[-1].split('.')[0] for item in res_list]
     return journal_names_list
 
 # returns a list containing the number of citations on each search result article
@@ -112,8 +112,8 @@ def get_search_results_as_df(request_url):
 
     # get search result attributes and convert each to series
     titles_ser = pd.Series(get_titles(soup), name = "title")
-    urls_ser = pd.Series(get_article_urls(soup), name = "url")
-    authors_ser = pd.Series(get_article_urls(soup), name = "first_author")
+    urls_ser = pd.Series(get_article_urls(soup), name = "url_to_article")
+    authors_ser = pd.Series(get_first_auther_names(soup), name = "first_author")
     year_ser = pd.Series(get_publication_years(soup), name = "year", dtype = int)
     journal_ser = pd.Series(get_journal_names(soup), name = "journal")
     citations_ser = pd.Series(get_number_of_citations(soup), name = "citations", dtype = int)
@@ -125,23 +125,23 @@ def get_search_results_as_df(request_url):
 def get_sorted_dataframe(request_url, sorting_prefs, n, n_res):
 
     # create a pandas dataframe to store values
-    final_df = pd.Dataframe(columns = ['title', 'year', 'first_author', 'citations', 'journal', 'url'])
+    final_df = pd.DataFrame(columns = ['title', 'year', 'first_author', 'citations', 'journal', 'url_to_article'])
 
     # get urls for upto 'n' pages
-    search_urls_list = get_urls_to_consequtive_n_pages(request_url, get_response_soup(request_url), 7)
+    search_urls_list = get_urls_to_consequtive_n_pages(request_url, get_response_soup(request_url), n)
 
     # for each up to 'n' result pages
-    for i in range(0, n):
+    for search_url in search_urls_list:
 
         # get df for search result
-        single_page_res_df = get_search_results_as_df(search_urls_list[i])
+        single_page_res_df = get_search_results_as_df(search_url)
 
         # append to final df
-        final_df.append(single_page_res_df, ignore_index = True)
+        final_df = pd.concat([final_df, single_page_res_df], axis = 0, ignore_index = True)
         final_df.reset_index(drop = True, inplace = True)
 
     # sort the df according to user preferences
-
+    final_df.sort_values(by = sorting_prefs[0], ascending = sorting_prefs[1], inplace = True)
     return final_df
 
 # saves dataframe as an excel file
@@ -149,5 +149,5 @@ def save_df_as_csv_file(url, sorting_prefs, n_pages, n_res):
 
     df = get_sorted_dataframe(url, sorting_prefs, n_pages, n_res)
     f_name = input('Enter filename for saving:')
-    f_name = f_name + ".xlxs"
-    df.to_excel(f_name, index = False)
+    f_name = f_name + ".csv"
+    df.to_csv(f_name, index = False)
