@@ -122,7 +122,7 @@ def get_search_results_as_df(request_url):
     df = pd.concat([titles_ser, year_ser, authors_ser, citations_ser, journal_ser, urls_ser], axis = 1)
     return df
 
-def get_sorted_dataframe(request_url, sorting_prefs):
+def get_sorted_dataframe(request_url, sorting_prefs, n, n_res):
 
     # create a pandas dataframe to store values
     final_df = pd.Dataframe(columns = ['title', 'year', 'first_author', 'citations', 'journal', 'url'])
@@ -130,11 +130,11 @@ def get_sorted_dataframe(request_url, sorting_prefs):
     # get urls for upto 'n' pages
     search_urls_list = get_urls_to_consequtive_n_pages(request_url, get_response_soup(request_url), 7)
 
-    # for each result page
-    for search_url in search_urls_list:
+    # for each up to 'n' result pages
+    for i in range(0, n):
 
         # get df for search result
-        single_page_res_df = get_search_results_as_df(search_url)
+        single_page_res_df = get_search_results_as_df(search_urls_list[i])
 
         # append to final df
         final_df.append(single_page_res_df, ignore_index = True)
@@ -143,3 +143,11 @@ def get_sorted_dataframe(request_url, sorting_prefs):
     # sort the df according to user preferences
 
     return final_df
+
+# saves dataframe as an excel file
+def save_df_as_csv_file(url, sorting_prefs, n_pages, n_res):
+
+    df = get_sorted_dataframe(url, sorting_prefs, n_pages, n_res)
+    f_name = input('Enter filename for saving:')
+    f_name = f_name + ".xlxs"
+    df.to_excel(f_name, index = False)

@@ -1,22 +1,16 @@
-import os
-import csv
-import sys
 import helpers
-
-
-
-
 
 def get_user_input():
 
     # start_url = str(input('Enter your Google Scholar Search result url: '))
     input_url = "https://scholar.google.com/scholar?start=0&q=(%22Machine+Learning%22%7C%22Deep+Learning%22)(%22Radiation+oncology%22%7C%22cancer+detection%22)&hl=en&as_sdt=0,44"
 
-    print("Please enter attribute you would like to sort by in the decreasing order of priority.Your options are:\n")
-    print("number of citations(desc): 1\nyear published(desc): 2\nfirst author name: 3\njournal name: 4\nno criteria: 0\n")
-
     # create a list to store sorting preferences
     sorting_pref = []
+
+    '''
+    print("Please enter attribute you would like to sort by in the decreasing order of priority.Your options are:\n")
+    print("number of citations(desc): 1\nyear published(desc): 2\nfirst author name: 3\njournal name: 4\nno criteria: 0\n")
 
     for i in range(1, 4):
         val = input(f"Enter attribute no {i} to sort by or 'exit' to end program: ")
@@ -34,19 +28,27 @@ def get_user_input():
                 sys.exit(0)
 
         sorting_pref.append(int(val))
-
+    
+    
+        
+        
         # exit loop if user inputs 0
         if int(val) == 0:
             sorting_pref.append(int(val))
             break
+    '''
 
+    # enter number of pages and search results from the search result to use
+    no_of_pages = int(input('Enter number of pages to use from the search result (max: 10): '))
+    no_of_res = int(input('Enter the total number of search results to return: '))
     # return starting url and sorting preferences
-    return input_url, sorting_pref
+    return input_url, sorting_pref, no_of_pages, no_of_res
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
     # get url and sorting prefs from user
-    url, sorting_prefs = get_user_input()
+    url, sorting_prefs, n_pages, n_res = get_user_input()
+    helpers.save_df_as_csv_file(url, sorting_prefs, n_pages, n_res)
 
 
