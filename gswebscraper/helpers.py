@@ -1,7 +1,7 @@
 import requests
 import bs4
-import numpy as np
 import pandas as pd
+import time
 
 # create object for initial webpage to create metadata
 class Webpage:
@@ -104,40 +104,51 @@ def get_number_of_citations(soup):
     return total_citations_list
 
 # returns a 2D list containing different attributes of the search results for a single page
-def get_search_results_as_df(request_url):
+def get_search_results_as_2Dlist(request_url):
 
     # get soup
     soup = get_response_soup(request_url)
 
     # get search result attributes and convert each to series
-    titles_ser = pd.Series(get_titles(soup), name = "title")
-    urls_ser = pd.Series(get_article_urls(soup), name = "url_to_article")
-    authors_ser = pd.Series(get_first_auther_names(soup), name = "first_author")
-    year_ser = pd.Series(get_publication_years(soup), name = "year", dtype = int)
-    journal_ser = pd.Series(get_journal_names(soup), name = "journal")
-    citations_ser = pd.Series(get_number_of_citations(soup), name = "citations", dtype = int)
+    res_list_2D = [get_titles(soup), get_publication_years(soup), get_first_auther_names(soup),
+                   get_number_of_citations(soup), get_journal_names(soup), get_article_urls(soup)]
 
-    # create dataframe
-    df = pd.concat([titles_ser, year_ser, authors_ser, citations_ser, journal_ser, urls_ser], axis = 1)
-    return df
+    return res_list_2D
 
-def get_sorted_dataframe(request_url, sorting_prefs, n):
+def create_sorted_dataframe(request_url, sorting_prefs, n):
 
-    # create a pandas dataframe to store values
-    final_df = pd.DataFrame(columns = ['title', 'year', 'first_author', 'citations', 'journal', 'url_to_article'])
+    # create list to store results
+    titles_list = []
+    year_list = []
+    authors_list = []
+    citations_list = []
+    journal_list = []
+    urls_list = []
 
     # get urls for upto 'n' pages
     search_urls_list = get_urls_to_consequtive_n_pages(request_url, get_response_soup(request_url), n)
 
-    # for each up to 'n' result pages
+    start_time = time.time()
+
     for search_url in search_urls_list:
 
-        # get df for search result
-        single_page_res_df = get_search_results_as_df(search_url)
+        res = get_search_results_as_2Dlist(search_url)
 
-        # append to final df
-        final_df = pd.concat([final_df, single_page_res_df], axis = 0, ignore_index = True)
-        final_df.reset_index(drop = True, inplace = True)
+        # unpack and append results
+        titles_list.extend(res[0])
+        year_list.extend(res[1])
+        authors_list.extend(res[2])
+        citations_list.extend(res[3])
+        journal_list.extend(res[4])
+        urls_list.extend(res[5])
+
+    # create a pandas dataframe to store values
+    final_df = pd.DataFrame(list(zip(titles_list, year_list, authors_list, citations_list, journal_list, urls_list)),
+                                columns=['title', 'year', 'first_author', 'citations', 'journal', 'url'])
+
+    end_time = time.time()
+
+    print(f'Total scraping time : {end_time - start_time:0.3f}s.\n')
 
     # sort df if preferences are provided
     if len(sorting_prefs[0]) == len(sorting_prefs[1]) != 0:
@@ -151,7 +162,7 @@ def get_sorted_dataframe(request_url, sorting_prefs, n):
 
 # converts url value to hyperlink
 def create_hyperlink(url_value):
-    return '=HYPERLINK("{}", "{}")'.format(url_value, url_value)
+    return '=HYPERLINK("{}", "{}")'.format(url_value, "link")
 
 
 # saves dataframe as an excel file
@@ -162,11 +173,11 @@ def save_df_as_csv(df, n_res):
 
     # save top 'n' values as a .csv file
     df_final = df.head(n_res).copy()
-    df_final['url_to_article'] = df_final['url_to_article'].apply(create_hyperlink)
+    df_final['url'] = df_final['url'].apply(create_hyperlink)
     df_final.to_csv(f_name + '.csv', index = False)
     print(f'Results saved in file {f_name}.csv.\n')
 
 
 def get_sorted_results(request_url, sorting_prefs, n, n_res):
-    df = get_sorted_dataframe(request_url, sorting_prefs, n)
+    df = create_sorted_dataframe(request_url, sorting_prefs, n)
     save_df_as_csv(df, n_res)
