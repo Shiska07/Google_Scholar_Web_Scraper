@@ -11,7 +11,7 @@ def get_user_input():
     aesc_pref = []
 
     print("Please enter attribute you would like to sort by in the decreasing order of priority.Your options are:\n")
-    print("number of citations(desc): 1\nyear published(desc): 2\nfirst author name: 3\njournal name: 4\nno criteria: 0\n")
+    print("number of citations: 1\nyear published: 2\nfirst author name: 3\njournal name: 4\nno criteria: 0\n")
 
     for i in range(1, 4):
         val = input(f"Enter attribute no {i} to sort by or 'exit' to end program: ")
@@ -22,15 +22,19 @@ def get_user_input():
         # keep asking for input if valid value is not entered
         while (not val.isdigit()) or (int(val) not in helpers.sorting_fields.keys()):
             print("\nPlease enter a valid number.Your options are:\n")
-            print("number of citations(desc): 1\nyear published(desc): 2\nfirst author name: 3\njournal name: 4\nno criteria: 0\n")
+            print("number of citations: 1\nyear published: 2\nfirst author name: 3\njournal name: 4\nno criteria: 0\n")
             val = input(f"Enter attribute no {i} to sort by or 'exit' to end program: ")
 
             if val == "exit":
                 sys.exit(0)
 
-        sorting_pref.append(int(val))
-        aesc_val = input("Ascending? (Enter T/F): ")
+                # exit loop if user inputs 0
+        if int(val) == 0:
+            break
 
+        sorting_pref.append(int(val))
+
+        aesc_val = input("Ascending? (Enter T/F): ")
         if aesc_val == "exit":
             sys.exit(0)
 
@@ -44,16 +48,12 @@ def get_user_input():
         else:
             aesc_pref.append(False)
 
-        # exit loop if user inputs 0
-        if int(val) == 0:
-            sorting_pref.append(int(val))
-            break
 
     # enter number of pages and search results from the search result to use
     no_of_pages = int(input('Enter number of pages to use from the search result (max: 10): '))
     no_of_res = int(input('Enter the total number of search results to return: '))
     # return starting url and sorting preferences
-    return input_url, sorting_pref, no_of_pages, no_of_res
+    return input_url, [sorting_pref, aesc_pref], no_of_pages, no_of_res
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':

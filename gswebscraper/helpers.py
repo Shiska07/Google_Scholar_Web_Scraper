@@ -15,12 +15,11 @@ class Webpage:
 
 
 # create a dictionary to store sorting attributes
-sorting_fields = {1: 'total_citations',
-                  2: 'publication_year',
-                  3: 'first_author_name',
-                  4: 'journal_name',
+sorting_fields = {1: 'citations',
+                  2: 'year',
+                  3: 'first_author',
+                  4: 'journal',
                   0: 'no_criteria'}
-
 
 domain_url = "https://scholar.google.com"
 
@@ -122,7 +121,7 @@ def get_search_results_as_df(request_url):
     df = pd.concat([titles_ser, year_ser, authors_ser, citations_ser, journal_ser, urls_ser], axis = 1)
     return df
 
-def get_sorted_dataframe(request_url, sorting_prefs, n, n_res):
+def get_sorted_dataframe(request_url, sorting_prefs, n):
 
     # create a pandas dataframe to store values
     final_df = pd.DataFrame(columns = ['title', 'year', 'first_author', 'citations', 'journal', 'url_to_article'])
@@ -140,14 +139,29 @@ def get_sorted_dataframe(request_url, sorting_prefs, n, n_res):
         final_df = pd.concat([final_df, single_page_res_df], axis = 0, ignore_index = True)
         final_df.reset_index(drop = True, inplace = True)
 
-    # sort the df according to user preferences
-    final_df.sort_values(by = sorting_prefs[0], ascending = sorting_prefs[1], inplace = True)
+    # sort df if preferences are provided
+    if len(sorting_prefs[0]) == len(sorting_prefs[1]) != 0:
+        # get column names for sorting
+        sorting_pref_cols = [sorting_fields[item] for item in sorting_prefs[0]]
+
+        # sort the df according to user preferences
+        final_df.sort_values(by = sorting_pref_cols, ascending = sorting_prefs[1], inplace = True)
+
     return final_df
 
 # saves dataframe as an excel file
-def save_df_as_csv_file(url, sorting_prefs, n_pages, n_res):
+def save_df_as_csv_file(df, n_res):
 
-    df = get_sorted_dataframe(url, sorting_prefs, n_pages, n_res)
+    # get filename from user
     f_name = input('Enter filename for saving:')
     f_name = f_name + ".csv"
+
+    # save top 'n' values as a .csv file
+    df_final = df.head(n_res).copy()
     df.to_csv(f_name, index = False)
+    print(f'Results saved in file {f_name}.\n')
+
+
+def get_sorted_results_as_csv(request_url, sorting_prefs, n, n_res):
+    df = get_sorted_dataframe(request_url, sorting_prefs, n)
+    save_df_as_csv_file(df, n_res)
