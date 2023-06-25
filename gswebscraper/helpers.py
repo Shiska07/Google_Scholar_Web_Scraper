@@ -149,19 +149,24 @@ def get_sorted_dataframe(request_url, sorting_prefs, n):
 
     return final_df
 
+# converts url value to hyperlink
+def create_hyperlink(url_value):
+    return '=HYPERLINK("{}", "{}")'.format(url_value, url_value)
+
+
 # saves dataframe as an excel file
-def save_df_as_csv_file(df, n_res):
+def save_df_as_csv(df, n_res):
 
     # get filename from user
     f_name = input('Enter filename for saving:')
-    f_name = f_name + ".csv"
 
     # save top 'n' values as a .csv file
     df_final = df.head(n_res).copy()
-    df.to_csv(f_name, index = False)
-    print(f'Results saved in file {f_name}.\n')
+    df_final['url_to_article'] = df_final['url_to_article'].apply(create_hyperlink)
+    df_final.to_csv(f_name + '.csv', index = False)
+    print(f'Results saved in file {f_name}.csv.\n')
 
 
-def get_sorted_results_as_csv(request_url, sorting_prefs, n, n_res):
+def get_sorted_results(request_url, sorting_prefs, n, n_res):
     df = get_sorted_dataframe(request_url, sorting_prefs, n)
-    save_df_as_csv_file(df, n_res)
+    save_df_as_csv(df, n_res)

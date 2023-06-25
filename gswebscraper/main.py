@@ -60,6 +60,10 @@ if __name__ == '__main__':
 
     # get url and sorting prefs from user
     url, sorting_prefs, n_pages, n_res = get_user_input()
-    helpers.save_df_as_csv_file(url, sorting_prefs, n_pages, n_res)
+    helpers.get_sorted_results(url, sorting_prefs, n_pages, n_res)
 
-
+'''
+TO DO:
+1. Timing and optimization
+2. Error and edge case handling
+'''
