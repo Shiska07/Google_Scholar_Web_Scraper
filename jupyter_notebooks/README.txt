@@ -1,0 +1,1 @@
+The notebooks contain code snipped for simple web scraping workflows implemented in the program.
