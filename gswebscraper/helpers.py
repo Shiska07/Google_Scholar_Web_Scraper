@@ -23,6 +23,22 @@ sorting_fields = {1: 'citations',
 
 domain_url = "https://scholar.google.com"
 
+
+# writes the url and the search query in a .txt file
+def write_search_metadata(soup, request_url):
+    search_query_list = []
+    res_set = soup.select('.gs_in_txt')
+    for i in range(0, int(len(res_set) / 2)):
+        search_query_list.append(res_set[i]['value'])
+
+    search_query = ''.join(search_query_list)
+
+    with open('metadata.txt', 'w') as f:
+        f.write(f'Search query: {search_query}\nurl: {request_url}')
+
+    print("Search metadata saved in file 'metadata.csv")
+
+
 # given a starting url and a value of n, returns a list of urls for next pages of the result
 def get_urls_to_consequtive_n_pages(start_url, soup, n):
 
@@ -39,10 +55,6 @@ def get_urls_to_consequtive_n_pages(start_url, soup, n):
         url_list.append(url_final)
 
     return url_list
-
-# writes the url and the search query in a .txt file
-def write_search_metadata(soup, request_url):
-    pass
 
 
 # gets intial response for url provided by the user and returns soup object
@@ -169,15 +181,24 @@ def create_hyperlink(url_value):
 def save_df_as_csv(df, n_res):
 
     # get filename from user
-    f_name = input('Enter filename for saving:')
+    fname = input('Enter filename for saving:')
 
     # save top 'n' values as a .csv file
     df_final = df.head(n_res).copy()
     df_final['url'] = df_final['url'].apply(create_hyperlink)
-    df_final.to_csv(f_name + '.csv', index = False)
-    print(f'Results saved in file {f_name}.csv.\n')
+    df_final.to_csv(fname + '.csv', index = False)
+    print(f'Results saved in file {fname}.csv.\n')
 
 
 def get_sorted_results(request_url, sorting_prefs, n, n_res):
+
+    # create sorted dataframe out of search results
     df = create_sorted_dataframe(request_url, sorting_prefs, n)
+
+    # save as a .csv file
     save_df_as_csv(df, n_res)
+
+    # write search metadata
+    write_search_metadata(get_response_soup(request_url), request_url)
+
+

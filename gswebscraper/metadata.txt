@@ -1,0 +1,2 @@
+Search query: "Machine Learning" "Deep Learning" "Radiation oncology" "cancer detection"
+url: https://scholar.google.com/scholar?start=0&q=(%22Machine+Learning%22%7C%22Deep+Learning%22)(%22Radiation+oncology%22%7C%22cancer+detection%22)&hl=en&as_sdt=0,44
