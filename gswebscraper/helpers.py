@@ -2,6 +2,7 @@ import requests
 import bs4
 import pandas as pd
 import time
+from datetime import datetime
 
 # create object for initial webpage to create metadata
 class Webpage:
@@ -25,7 +26,7 @@ domain_url = "https://scholar.google.com"
 
 
 # writes the url and the search query in a .txt file
-def write_search_metadata(soup, request_url):
+def write_search_metadata(soup, request_url, n_items):
     search_query_list = []
     res_set = soup.select('.gs_in_txt')
     for i in range(0, int(len(res_set) / 2)):
@@ -34,7 +35,10 @@ def write_search_metadata(soup, request_url):
     search_query = ''.join(search_query_list)
 
     with open('metadata.txt', 'w') as f:
-        f.write(f'Search query: {search_query}\nurl: {request_url}')
+        f.write(f'Timestamp   : {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}\n')
+        f.write(f'Search query: {search_query}\n')
+        f.write(f'Total items : {n_items}\n')
+        f.write(f'url         : {request_url}\n')
 
     print("Search metadata saved in file 'metadata.csv")
 
@@ -199,6 +203,6 @@ def get_sorted_results(request_url, sorting_prefs, n, n_res):
     save_df_as_csv(df, n_res)
 
     # write search metadata
-    write_search_metadata(get_response_soup(request_url), request_url)
+    write_search_metadata(get_response_soup(request_url), request_url, n_res)
 
 

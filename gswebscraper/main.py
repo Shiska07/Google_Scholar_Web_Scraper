@@ -10,25 +10,38 @@ def get_user_input():
     sorting_pref = []
     aesc_pref = []
 
-    print("Please enter attribute you would like to sort by in the decreasing order of priority.Your options are:\n")
-    print("number of citations: 1\nyear published: 2\nfirst author name: 3\njournal name: 4\nno criteria: 0\n")
+    options_dict = {0 : "no criteria:",
+                    1 : "citations  :",
+                    2 : "year       :",
+                    3 : "author(s)  :",
+                    4 : "journal    :" }
+
+    print("\nPlease enter attribute you would like to sort by in the decreasing order of priority. 1Your options are:")
+    for key, value in options_dict.items():
+        if key not in sorting_pref:
+            print(f'{value} {key}')
+    print("\nEnter 'exit' anytime to quit.\n")
 
     for i in range(1, 4):
-        val = input(f"Enter attribute no {i} to sort by or 'exit' to end program: ")
+        val = input(f"\nEnter attribute no {i} for sorting: ")
 
         if val == "exit":
             sys.exit(0)
 
         # keep asking for input if valid value is not entered
-        while (not val.isdigit()) or (int(val) not in helpers.sorting_fields.keys()):
-            print("\nPlease enter a valid number.Your options are:\n")
-            print("number of citations: 1\nyear published: 2\nfirst author name: 3\njournal name: 4\nno criteria: 0\n")
-            val = input(f"Enter attribute no {i} to sort by or 'exit' to end program: ")
+        while (not val.isdigit()) or (int(val) not in helpers.sorting_fields.keys() or int(val) in sorting_pref):
+            print("\nPlease enter a valid number. Your options are:\n")
+
+            for key, value in options_dict.items():
+                if key not in sorting_pref:
+                    print(f'{value} {key}')
+
+            val = input(f"\nEnter attribute no {i} for sorting: ")
 
             if val == "exit":
                 sys.exit(0)
 
-                # exit loop if user inputs 0
+         # exit loop if user inputs 0
         if int(val) == 0:
             break
 
@@ -50,8 +63,8 @@ def get_user_input():
 
 
     # enter number of pages and search results from the search result to use
-    no_of_pages = int(input('Enter number of pages to use from the search result (max: 10): '))
-    no_of_res = int(input('Enter the total number of search results to return: '))
+    no_of_pages = int(input('Enter number of pages you would like to pull results from(max: 10): '))
+    no_of_res = int(input('Enter the total number of search items to return: '))
     # return starting url and sorting preferences
     return input_url, [sorting_pref, aesc_pref], no_of_pages, no_of_res
 
