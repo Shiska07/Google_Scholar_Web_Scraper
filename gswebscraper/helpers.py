@@ -16,7 +16,8 @@ sorting_fields = {1: 'citations',
 domain_url = "https://scholar.google.com"
 
 # writes the url and the search query in a .txt file
-def write_search_metadata(soup, request_url, n_items):
+def write_search_metadata(soup, request_url, n_items, fname):
+
     search_query_list = []
     res_set = soup.select('.gs_in_txt')
     for i in range(0, int(len(res_set) / 2)):
@@ -25,10 +26,19 @@ def write_search_metadata(soup, request_url, n_items):
     search_query = ''.join(search_query_list)
 
     with open('metadata.txt', 'w') as f:
+        f.write(f'filename    : {fname}\n')
         f.write(f'Timestamp   : {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}\n')
         f.write(f'Search query: {search_query}\n')
         f.write(f'Total items : {n_items}\n')
         f.write(f'url         : {request_url}\n')
+        f.write('\nAttribute description:\n')
+        f.write('title       : Title of the paper\n')
+        f.write('year        : Publication year\n')
+        f.write('first_author: Name of the first author\n')
+        f.write('citations   : Number of times the paper has been cited\n')
+        f.write('journal     : Publication journal name\n')
+        f.write('url         : link to the paper\n')
+        f.write('search_page : Page number of the search result on GoogleScholar\n')
 
     print("Search metadata saved in file 'metadata.csv")
 
@@ -49,6 +59,7 @@ def save_df_as_csv(df, n_res):
     df_final['url'] = df_final['url'].apply(create_hyperlink)
     df_final.to_csv(fname + '.csv', index = False)
     print(f'Results saved in file {fname}.csv.\n')
+    return fname
 
 
 # given a starting url and a value of n, returns a list of urls for next pages of the result
@@ -143,19 +154,20 @@ def get_search_results_as_2Dlist(request_url):
 def create_sorted_dataframe(request_url, sorting_prefs, n):
 
     # create list to store results
-    titles_list = []
-    year_list = []
-    authors_list = []
-    citations_list = []
-    journal_list = []
-    urls_list = []
+    titles_list = []        # Title of the paper
+    year_list = []          # Published year
+    authors_list = []       # First author
+    citations_list = []     # No. of citations
+    journal_list = []       # Name of the journal
+    urls_list = []          # url/link to the article/paper
+    search_page = []        # page number of the search result on GoogleScholar
 
     # get urls for upto 'n' pages
     search_urls_list = get_urls_to_consequtive_n_pages(request_url, get_response_soup(request_url), n)
 
     start_time = time.time()
 
-    for search_url in search_urls_list:
+    for i, search_url in enumerate(search_urls_list):
 
         res = get_search_results_as_2Dlist(search_url)
 
@@ -166,10 +178,11 @@ def create_sorted_dataframe(request_url, sorting_prefs, n):
         citations_list.extend(res[3])
         journal_list.extend(res[4])
         urls_list.extend(res[5])
+        search_page.extend([i+1]*10)
 
     # create a pandas dataframe to store values
-    final_df = pd.DataFrame(list(zip(titles_list, year_list, authors_list, citations_list, journal_list, urls_list)),
-                                columns=['title', 'year', 'first_author', 'citations', 'journal', 'url'])
+    final_df = pd.DataFrame(list(zip(titles_list, year_list, authors_list, citations_list, journal_list, urls_list, search_page)),
+                                columns=['title', 'year', 'first_author', 'citations', 'journal', 'url', 'search_page'])
 
     end_time = time.time()
 
@@ -182,6 +195,10 @@ def create_sorted_dataframe(request_url, sorting_prefs, n):
 
         # sort the df according to user preferences
         final_df.sort_values(by = sorting_pref_cols, ascending = sorting_prefs[1], inplace = True)
+
+    else:
+        # sory by decreasing order of citations, then year
+        final_df.sort_values(by=['citations', 'year'], ascending=[False, False], inplace=True)
 
     return final_df
 
@@ -206,9 +223,8 @@ def get_sorted_results(request_url, sorting_prefs, n, n_res):
     df = create_sorted_dataframe(request_url, sorting_prefs, n)
 
     # save as a .csv file
-    save_df_as_csv(df, n_res)
+    fname = save_df_as_csv(df, n_res)
 
     # write search metadata
-    write_search_metadata(get_response_soup(request_url), request_url, n_res)
-
+    write_search_metadata(get_response_soup(request_url), request_url, n_res, fname)
 
