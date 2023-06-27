@@ -189,7 +189,7 @@ def create_sorted_dataframe(request_url, sorting_prefs, n):
 def check_url_validity(request_url):
 
     try:
-        test_resp = request_url.get(request_url)
+        test_resp = requests.get(request_url)
     except:
         print("Provided url is not valid. Please re-run the program.\n")
         sys.exit(0)

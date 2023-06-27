@@ -3,8 +3,7 @@ import helpers
 
 def get_user_input():
 
-    # start_url = str(input('Enter your Google Scholar Search result url: '))
-    input_url = "https://scholar.google.com/scholar?start=0&q=(%22Machine+Learning%22%7C%22Deep+Learning%22)(%22Radiation+oncology%22%7C%22cancer+detection%22)&hl=en&as_sdt=0,44"
+    input_url = str(input('Enter your Google Scholar Search result url: '))
 
     # check validity of url provided by the user
     input_url = helpers.check_url_validity(input_url)
