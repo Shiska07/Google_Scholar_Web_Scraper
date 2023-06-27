@@ -6,6 +6,9 @@ def get_user_input():
     # start_url = str(input('Enter your Google Scholar Search result url: '))
     input_url = "https://scholar.google.com/scholar?start=0&q=(%22Machine+Learning%22%7C%22Deep+Learning%22)(%22Radiation+oncology%22%7C%22cancer+detection%22)&hl=en&as_sdt=0,44"
 
+    # check validity of url provided by the user
+    input_url = helpers.check_url_validity(input_url)
+
     # create a list to store sorting preferences
     sorting_pref = []
     aesc_pref = []
@@ -75,11 +78,3 @@ if __name__ == '__main__':
     url, sorting_prefs, n_pages, n_res = get_user_input()
     helpers.get_sorted_results(url, sorting_prefs, n_pages, n_res)
 
-
-
-
-'''
-TO DO:
-1. Timing and optimization
-2. Error and edge case handling
-'''

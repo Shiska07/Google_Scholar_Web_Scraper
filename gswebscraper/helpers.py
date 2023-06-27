@@ -1,19 +1,10 @@
+import sys
+
 import requests
 import bs4
 import pandas as pd
 import time
 from datetime import datetime
-
-# create object for initial webpage to create metadata
-class Webpage:
-    def __int__(self, url):
-        self.url = url
-        self.search_query = None
-
-    def set_search_query(self, soup):
-        # extract search_query from soup object
-        pass
-
 
 # create a dictionary to store sorting attributes
 sorting_fields = {1: 'citations',
@@ -23,7 +14,6 @@ sorting_fields = {1: 'citations',
                   0: 'no_criteria'}
 
 domain_url = "https://scholar.google.com"
-
 
 # writes the url and the search query in a .txt file
 def write_search_metadata(soup, request_url, n_items):
@@ -41,6 +31,24 @@ def write_search_metadata(soup, request_url, n_items):
         f.write(f'url         : {request_url}\n')
 
     print("Search metadata saved in file 'metadata.csv")
+
+
+# converts url value to hyperlink
+def create_hyperlink(url_value):
+    return '=HYPERLINK("{}", "{}")'.format(url_value, "link")
+
+
+# saves dataframe as an excel file
+def save_df_as_csv(df, n_res):
+
+    # get filename from user
+    fname = input('Enter filename for saving:')
+
+    # save top 'n' values as a .csv file
+    df_final = df.head(n_res).copy()
+    df_final['url'] = df_final['url'].apply(create_hyperlink)
+    df_final.to_csv(fname + '.csv', index = False)
+    print(f'Results saved in file {fname}.csv.\n')
 
 
 # given a starting url and a value of n, returns a list of urls for next pages of the result
@@ -64,6 +72,7 @@ def get_urls_to_consequtive_n_pages(start_url, soup, n):
 # gets intial response for url provided by the user and returns soup object
 def get_response_soup(request_url):
 
+    # check if the provided url is a valid url
     req_response = requests.get(request_url)
     soup = bs4.BeautifulSoup(req_response.content, "lxml")
     return soup
@@ -176,23 +185,20 @@ def create_sorted_dataframe(request_url, sorting_prefs, n):
 
     return final_df
 
-# converts url value to hyperlink
-def create_hyperlink(url_value):
-    return '=HYPERLINK("{}", "{}")'.format(url_value, "link")
+# check's if the url provided by the user is valid for the program
+def check_url_validity(request_url):
 
-
-# saves dataframe as an excel file
-def save_df_as_csv(df, n_res):
-
-    # get filename from user
-    fname = input('Enter filename for saving:')
-
-    # save top 'n' values as a .csv file
-    df_final = df.head(n_res).copy()
-    df_final['url'] = df_final['url'].apply(create_hyperlink)
-    df_final.to_csv(fname + '.csv', index = False)
-    print(f'Results saved in file {fname}.csv.\n')
-
+    try:
+        test_resp = request_url.get(request_url)
+    except:
+        print("Provided url is not valid. Please re-run the program.\n")
+        sys.exit(0)
+    else:
+        if domain_url in request_url:
+            return request_url
+        else:
+            print("Provided url is out of the program's scope. Please re-run the program.\n")
+            sys.exit(0)
 
 def get_sorted_results(request_url, sorting_prefs, n, n_res):
 
