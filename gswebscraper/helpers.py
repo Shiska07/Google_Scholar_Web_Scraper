@@ -1,5 +1,5 @@
 import sys
-
+import os
 import requests
 import bs4
 import pandas as pd
@@ -25,8 +25,8 @@ def write_search_metadata(soup, request_url, n_items, fname):
 
     search_query = ''.join(search_query_list)
 
-    with open('metadata.txt', 'w') as f:
-        f.write(f'filename    : {fname}\n')
+    with open(fname+'/metadata.txt', 'w') as f:
+        f.write(f'filename    : {fname}.csv\n')
         f.write(f'Timestamp   : {datetime.now().strftime("%d/%m/%Y %H:%M:%S")}\n')
         f.write(f'Search query: {search_query}\n')
         f.write(f'Total items : {n_items}\n')
@@ -57,8 +57,17 @@ def save_df_as_csv(df, n_res):
     # save top 'n' values as a .csv file
     df_final = df.head(n_res).copy()
     df_final['url'] = df_final['url'].apply(create_hyperlink)
-    df_final.to_csv(fname + '.csv', index = False)
+
+    # create a directory with the same name as the file
+    os.mkdir(fname)
+
+    # destination string
+    dest = fname+ '/' + fname + '.csv'
+
+    # save df as a csv file
+    df_final.to_csv(dest, index = False)
     print(f'Results saved in file {fname}.csv.\n')
+
     return fname
 
 

@@ -3,7 +3,7 @@ import helpers
 
 def get_user_input():
 
-    input_url = str(input('Enter your Google Scholar Search result url: '))
+    input_url = str(input('Enter the https url to your Google Scholar Search result: '))
 
     # check validity of url provided by the user
     input_url = helpers.check_url_validity(input_url)
@@ -66,7 +66,7 @@ def get_user_input():
 
     # enter number of pages and search results from the search result to use
     no_of_pages = int(input('Enter number of pages you would like to pull results from(max: 10): '))
-    no_of_res = int(input(f'Enter the total number of search items to return(max: {no_of_pages*10} '))
+    no_of_res = int(input(f'Enter the total number of search items to return(max: {no_of_pages*10}): '))
     # return starting url and sorting preferences
     return input_url, [sorting_pref, aesc_pref], no_of_pages, no_of_res
 

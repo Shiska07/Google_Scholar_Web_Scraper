@@ -1,7 +1,0 @@
-Timestamp   : 27/06/2023 17:44:55
-Search query: application of machine learning in cancer detection
-Total items : 20
-url         : https://scholar.google.com/scholar?hl=en&as_sdt=0%2C44&q=application+of+machine+learning+in+cancer+detection&btnG=
-
-Attribute description:
-title       : Title of the paperyear        : Publication yearfirst_author: Name of the first authorcitations   : Number of times the paper has been citedjournal     : Publication journal nameurl         : link to the papersearch_page : Page number of the search result on GoogleScholar
