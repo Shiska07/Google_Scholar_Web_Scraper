@@ -1,8 +1,8 @@
-filename    : res1.csv
-Timestamp   : 28/06/2023 10:55:46
+filename    : res2.csv
+Timestamp   : 28/06/2023 12:41:15
 Search query: machine learning in cancer detection
 Total items : 100
-url         : https://scholar.google.com/scholar?hl=en&as_sdt=0%2C44&q=machine+learning+in+cancer+detection&btnG=
+url         : https://scholar.google.com/scholar?start=0&q=machine+learning+in+cancer+detection&hl=en&as_sdt=0,44
 
 Attribute description:
 title       : Title of the paper

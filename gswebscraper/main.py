@@ -77,3 +77,5 @@ if __name__ == '__main__':
     url, sorting_prefs, n_pages, n_res = get_user_input()
     helpers.get_sorted_results(url, sorting_prefs, n_pages, n_res)
 
+    # link to article not being properly extracted
+    

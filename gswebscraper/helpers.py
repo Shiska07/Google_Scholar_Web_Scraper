@@ -40,7 +40,7 @@ def write_search_metadata(soup, request_url, n_items, fname):
         f.write('url         : link to the paper\n')
         f.write('search_page : Page number of the search result on GoogleScholar\n')
 
-    print("Search metadata saved in file 'metadata.csv")
+    print("Search metadata saved in file 'metadata.csv'")
 
 
 # converts url value to hyperlink
@@ -52,21 +52,24 @@ def create_hyperlink(url_value):
 def save_df_as_csv(df, n_res):
 
     # get filename from user
-    fname = input('Enter filename for saving:')
+    fname = input('Enter filename to save results: ')
 
     # save top 'n' values as a .csv file
     df_final = df.head(n_res).copy()
     df_final['url'] = df_final['url'].apply(create_hyperlink)
 
-    # create a directory with the same name as the file
-    os.mkdir(fname)
-
-    # destination string
-    dest = fname+ '/' + fname + '.csv'
-
-    # save df as a csv file
-    df_final.to_csv(dest, index = False)
-    print(f'Results saved in file {fname}.csv.\n')
+    while True:
+        try:
+            # create a directory with the same name as the file
+            os.mkdir(fname)
+        except:
+            fname = input("Invalid filename. Please pick a different filename: ")
+        else:
+            # destination string
+            dest = fname + '/' + fname + '.csv'
+            df_final.to_csv(dest, index=False)
+            print(f'Results saved in file {fname}.csv.\n')
+            break
 
     return fname
 
@@ -108,7 +111,12 @@ def get_titles(soup):
 def get_article_urls(soup):
 
     res_list = list(soup.select('[data-lid]'))
-    article_urls = [item.find_all('a', href = True)[0]['href'] for item in res_list]
+    article_urls = []
+    for item in res_list:
+        if 'https:' in item.find_all('a')[1]['href']:
+            article_urls.append(item.find_all('a')[1]['href'])
+        else:
+            article_urls.append(item.find_all('a')[0]['href'])
     return article_urls
 
 # returns a list of first authors for all search results on the page
