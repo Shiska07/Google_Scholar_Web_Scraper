@@ -4,6 +4,7 @@ import requests
 import bs4
 import pandas as pd
 import time
+import numpy as np
 from datetime import datetime
 
 # create a dictionary to store sorting attributes
@@ -143,7 +144,10 @@ def get_publication_years(soup):
     for value in res_list:
         terms = value.get_text().split()
         value = [item for item in terms if item.isnumeric()]
-        years_list.append(int(value[0]))
+        if len(value) > 0:
+            years_list.append(int(value[0]))
+        else:
+            years_list.append(np.NaN)
 
     return years_list
 
@@ -161,7 +165,14 @@ def get_number_of_citations(soup):
     valid_res_list = valid_res_list = [item for item in res_list if len(item["class"]) == 1]
 
     # the 'gs_fl' class containing citation for each search item = (i*2)+1 ( i = 0, the index is 1)
-    total_citations_list = [int(item.find_all('a')[2].get_text().split()[-1]) for item in valid_res_list]
+    total_citations_list = []
+    for item in valid_res_list:
+        value = item.find_all('a')[2].get_text().split()[-1]
+        if value.isnumeric():
+            total_citations_list.append(int(value))
+        else:
+            total_citations_list.append(np.NaN)
+
     return total_citations_list
 
 # returns a 2D list containing different attributes of the search results for a single page
@@ -223,7 +234,7 @@ def create_sorted_dataframe(request_url, sorting_prefs, n):
 
     else:
         # sory by decreasing order of citations, then year
-        final_df.sort_values(by=['citations', 'year'], ascending=[False, False], inplace=True)
+        final_df.sort_values(by=['citations', 'year'], ascending=[False, False], inplace=True, na_position='first')
 
     return final_df
 
