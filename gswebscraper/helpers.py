@@ -47,12 +47,10 @@ def write_search_metadata(soup, request_url, n_items, fname):
 # converts url value to hyperlink
 def create_hyperlink(url_value):
 
-    if len(url_value) <= 255:
+    if len(url_value) < 255:
         hyperlink = '=HYPERLINK("{}", "{}")'.format(url_value, "link")
     else:
-        url_value1 = url_value[0:254]
-        url_value2 = url_value1[254::]
-        hyperlink = '=HYPERLINK("{}"&"{}, "{}")'.format(url_value1, url_value2, "link")
+        return url_value
 
     return hyperlink
 
