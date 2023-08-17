@@ -6,4 +6,9 @@ To use the program:-
 2. When prompted, provide the http link of your google scholar search result
 3. Provide the first, second and third criteria to sort results by. For example: citations, year, journal, etc.
 
+The image below shows an example run:
+
+ <img src = "image.png" width = 800>
+
+
 The sorted list will be stored in a .csv file and the search metadata will be stored in 'metadata.csv' within a folder created by the program. The program will prompt the user to provide the folder name. Check folder 'gswebscraper/transfer_learning_nedical_imaging' for search results example.
