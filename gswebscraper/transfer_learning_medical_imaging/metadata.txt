@@ -1,0 +1,14 @@
+filename    : transfer_learning_medical_imaging.csv
+Timestamp   : 17/08/2023 10:42:17
+Search query: Transfer Learning in medical imagingclassification Detection
+Total items : 30
+url         : https://scholar.google.com/scholar?hl=en&as_sdt=0%2C44&q=Transfer+Learning+in+medical+imaging+classification+%7C+Detection&btnG=
+
+Attribute description:
+title       : Title of the paper
+year        : Publication year
+first_author: Name of the first author
+citations   : Number of times the paper has been cited
+journal     : Publication journal name
+url         : link to the paper
+search_page : Page number of the search result on GoogleScholar

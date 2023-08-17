@@ -103,7 +103,7 @@ def get_urls_to_consequtive_n_pages(start_url, soup, n):
 def get_response_soup(request_url):
 
     # check if the provided url is a valid url
-    req_response = requests.get(request_url)
+    req_response = requests.get(request_url, headers = {"User-Agent" : "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36" })
     soup = bs4.BeautifulSoup(req_response.content, "lxml")
     return soup
 
